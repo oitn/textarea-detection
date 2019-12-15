@@ -1,7 +1,9 @@
+% 去除过小或过大的区域，这里取水平方向最小单位为3*minu，竖直方向最小单位minu
 function[] = deNoise(type)
 global H W;
 global layer;
 global minu maxu;
+% 水平探测
 if(strcmp(type, 'vertical'))
     for i = 1:W
         from = 1; to = 1;
@@ -19,6 +21,7 @@ if(strcmp(type, 'vertical'))
             end
         end
     end
+% 竖直探测
 elseif(strcmp(type, 'horizontal'))
     for i = 1:H
         from = 1; to = 1;

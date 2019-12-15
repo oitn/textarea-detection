@@ -1,10 +1,9 @@
-% 请从此处运行
 clear;
-source = imread('pic_source.jpg');
+source = imread('pic_source5.jpg');
 global H W;
 H = size(source, 1);
 W = size(source, 2);
-% 如果是作业图片，旋转90度再检测
+% 如果是要求的图片，旋转90度再检测
 if(W==1331&&H==739)
     source = imrotate(source,-90,'nearest');
     H = size(source, 1);
@@ -13,10 +12,10 @@ end
 
 % 设定最大和最小的文字大小
 global maxu minu;
-maxu = round(max([H W])/10);
+maxu = round(max([H W])/6);
 minu = round(min([H W])/40);
 
-%% 求边缘和二值图
+%% 求边缘
 global edges gray;
 gray = rgb2gray(source);
 edges = edge(gray,'prewitt');
@@ -67,10 +66,10 @@ weizhi = find(iftext==0);
 posi(weizhi) = [];
 figure, imshow(layer), title('检测矩形宽高进行筛选');
 
-% 根据二值图像素点位置进一步检测矩形区域是否是文字区域
+% 根据二值图xiang'su进一步检测矩形区域是否是发文字区域
 iftext = ones(size(posi, 1));
 for i = 1:size(posi, 1)
-    iftext(i) = checkTwo(posi(i).BoundingBox);
+    iftext(i) = checkVertical(edges, posi(i).BoundingBox);
 end
 weizhi = find(iftext==0);
 posi(weizhi) = [];

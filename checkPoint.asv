@@ -1,5 +1,5 @@
 function[] = checkPoint(x, y, type)
-% Á¥ÊôcheckboxÖ®ÏÂ
+% li'sh
 global ifcheckBox;
 global H W;
 global layer;

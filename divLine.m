@@ -1,3 +1,4 @@
+% “动态行分割”？？？
 % 对小单位横向检测筛除非文字区域
 % unit：分割元素单位；  start_posi：分割偏移量
 function[] = divLine(unit, skew)

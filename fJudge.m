@@ -1,0 +1,87 @@
+% 输入：区域图像、宽度、高度、横向矩阵数
+% 输出：可能为文字区域的起始点
+% 隶属checkTwo函数，对横向分布检测的零点位置进行衡量
+function [iftext] = fJudge(image, width, height)
+iftext = 1;
+line = zeros(1, width);
+
+%横向统计纵向点数
+for px = 1:width
+    point_num = 0;
+    for py = 1:height
+        if(image(py, px) == 0)
+            point_num = point_num + 1;
+        end
+    end
+    line(px) = point_num;
+end
+
+% 合并零点位置
+zero_posi = [];
+for i = 1:width
+    if(line(i) < 1)
+        j = i;
+        while(j<=width && line(j) < 1)
+            line(j) = 1;
+            j = j+1;
+        end
+        zero_posi = [zero_posi round((i+j)/2)];
+    end
+end
+
+% 确定间隔距离interval的范围
+max_interval = 3*height;
+min_interval = height;
+
+max_length = 0;
+max_from = 0;
+max_to = 0;
+
+% 这种，输入不标准，答案也不标准的题……要考虑的问题好多啊
+
+% 遍历每个点
+for i = 1:length(zero_posi)
+    % 遍历每个点能到达的区域
+    for j = i+1:length(zero_posi)
+        interval = zero_posi(j) - zero_posi(i);
+        if(interval > max_interval)
+            break
+        end
+        if(interval > min_interval)
+            temp_to = j;
+            % 遍历满足要求的点的数目
+            last_posi = zero_posi(j);
+            for k = j+1:length(zero_posi)
+                if(zero_posi(k)-last_posi<interval*1.6 && zero_posi(k)-last_posi>interval*0.5)
+                    last_posi = zero_posi(k);
+                    temp_to = k;
+                elseif(zero_posi(k) > interval*1.1)
+                    break
+                end
+            end
+            if(last_posi-zero_posi(i) > max_length)
+                max_length = last_posi - zero_posi(i);
+                max_from = i;
+                max_to = temp_to;
+            end
+        end
+    end
+end
+
+
+if(max_from~=0 && max_to~=0)
+    a = max([ zero_posi(max_from)-max_interval 1 ]);
+    b = min([ zero_posi(max_to)+max_interval width ]);
+else
+    iftext = 0;
+end
+
+if(iftext~=0 && b-a<width/2)
+    iftext = 0;
+end
+
+if(iftext~=0 && max_to-max_from < 2 && (a-1<min_interval || width-b<min_interval))
+    iftext = 0;
+end
+
+

@@ -1,3 +1,4 @@
+% 判断区域是不是长条的，这里是宽度至少为高度的2.8倍
 function [ch] = checkSquare(image,posi)
 global layer;
 ch = 1;

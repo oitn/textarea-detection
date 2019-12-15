@@ -1,4 +1,5 @@
-function [ch] = checkVertical(image,posi)
+% 对二值图检测，确定最后的文字区域
+function [ch] = checkTwo(posi)
 global layer two minu;
 ch = 1;
 % 判断矩形域
@@ -11,7 +12,7 @@ line = zeros(1, width);
 
 v_line = zeros(1, height);
 
-%——————— 分割线 ———————
+%% ——————— 分割线 ———————
 
 % 纵向统计横向点数，对不合格的地方进行剪裁
 for py = y:y+height
@@ -23,7 +24,7 @@ for py = y:y+height
     end
     v_line(py-y+1) = point_num;
 end
-figure, subplot(221), plot(v_line), title('纵向分布检测')
+
 
 % 定位大致范围
 k1 = 15;
@@ -71,17 +72,15 @@ v_line2 = v_line(v_from:v_to);
 A = polyfit(v_from:1:v_to, v_line2, 1);
 z = polyval(A, v_from:1:v_to);
 xielv = A(1) / (max(v_line)-min(v_line)) * height;
-subplot(222), plot(v_from:1:v_to, v_line2, 'r*', v_from:1:v_to, z, 'b'), title(['直线拟合纵向图 斜率：' num2str(xielv)]);
-if(abs(xielv) > 0.4)
+if(abs(xielv) > 0.5)
     ch = 0;
 end
 end
 
 
 
-%—————— 分割线 ——————
-
-% 横向统计纵向点数
+%% —————— 分割线 ——————
+% 横向统计纵向点数（这里其实只想画个图）
 for px = x:x+width
     point_num = 0;
     for py = y:y+height
@@ -91,45 +90,17 @@ for px = x:x+width
     end
     line(px-x+1) = point_num;
 end
-subplot(223), plot(line), title('横向分布检测')
+%调用fJudge函数
+cut = [0 0];
+if(ch ~= 0)
+ic = imcrop(two, [x y width height]);
+ch = min([ fJudge(ic, width, height) ch ]);
+end
+
+
 target = imcrop(two, [x, y, width, height]);
-subplot(224), imshow(target);
 
-
-if(ch~=0)
-%
-% 检查低谷点位置
-valley_posi = [];
-for i = 1:width
-    if(line(i)<1)
-        valley_posi = [valley_posi i];
-        j = i;
-        while(j<=width && line(j)<1)
-            line(j) = 1;
-            j = j+1;
-        end
-    end
-end
-if(~isempty(valley_posi) && valley_posi(1) == 1)
-    valley_posi(1) = [];
-end
-% 判断位置是否符合要求
-
-if(width>minu && width/height > 10)
-    if(length(valley_posi) < (width/(height*3)))
-        ch = 0;
-    end
-else
-    if(length(valley_posi) < (width/(height*1.8)))
-        ch = 0;
-    end
-end
-%
-end
-
-% 大程序还是写得少……变量名玩不过来了……
-
-% —————— 分割线 ——————
+%% —————— 分割线 ——————
 
 % 之前好像把基础值玩没了…………重新获取一下。。我说layer咋这么多小条条
 x = round(posi(1));
@@ -145,4 +116,9 @@ if(ch == 0)
     end
 end
 
-%subplot(222), title(['ind: ' num2str(ind) ]);
+% % 图像输出由于太影响程序运行效率，同意搬到后面注释掉了
+% figure, subplot(221), plot(v_line), title('纵向分布检测')
+% subplot(222), plot(v_from:1:v_to, v_line2, 'r*', v_from:1:v_to, z, 'b'), title(['直线拟合纵向图 斜率：' num2str(xielv)]);
+% subplot(223), plot(line), title('横向分布检测');
+% subplot(224), imshow(target), title([num2str(cut(1)) 'and' num2str(cut(2))]);
+
